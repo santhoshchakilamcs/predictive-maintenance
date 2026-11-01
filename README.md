@@ -18,7 +18,7 @@ NASA C-MAPSS FD001 (train/test/RUL txt)
   -> rag/ask.py               : TF-IDF retrieval over sample maintenance guides
                                 (RAG copilot: grounded answers, no LLM call by design)
   -> dashboard/build_dashboard.py : BI exports (CSV, Power BI/Tableau-ready) + HTML preview
-  -> app.py                   : FastAPI serving layer (/fleet, /predict/{unit}, /ask)
+  -> app.py                   : FastAPI serving layer (/fleet, /predict/{unit}, /history/{unit}, /ask)
 ```
 
 ## Data provenance
@@ -43,6 +43,17 @@ python3 -m venv .venv
 Then open `dashboard/index.html`, or import `dashboard/exports/*.csv`
 (engine_health, fleet_summary, model_metrics, sensor_trends) into Power BI
 or Tableau.
+
+## Per-engine alert history
+`GET /history/{unit}` returns that engine's prediction, its alert
+(CRITICAL if predicted RUL < 30, WARNING if < 60, else HEALTHY),
+and its last 20 sensor cycles from `sensor_readings`, so a trend
+can be plotted. Verified: unit 34 is CRITICAL, predicted RUL 4.96
+at cycle 203, with trend cycles 184-203. Honest limit: the
+predictions table has one row per test engine, so there is no
+historical alert log in this demo, and this endpoint does not
+invent past alerts. The RAG guides in `rag/docs/` are sample
+documents, not OEM manuals, as noted below.
 
 ## Honest notes
 
